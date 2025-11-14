@@ -1,0 +1,36 @@
+{
+  "name": "st-shazam",
+  "displayName": "ST Shazam",
+  "version": "1.0.0",
+  "description": "A Node.js implementation of Shazam-like audio recognition using fingerprinting algorithm",
+  "main": "ST.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node index.js"
+  },
+  "keywords": [
+    "shazam",
+    "audio-recognition",
+    "fingerprinting",
+    "music-identification",
+    "audio-processing"
+  ],
+  "author": "Sheikh Tamim <sheikh.tamim_lover>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sheikhtamimlover/ST-Shazam.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sheikhtamimlover/ST-Shazam/issues"
+  },
+  "homepage": "https://github.com/sheikhtamimlover/ST-Shazam#readme",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@types/node": "^22.13.11",
+    "axios": "^1.13.2",
+    "fft.js": "^4.0.4",
+    "fluent-ffmpeg": "^2.1.3",
+    "uuid": "^11.0.3"
+  }
+}
