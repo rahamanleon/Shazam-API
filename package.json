@@ -1,7 +1,7 @@
 {
   "name": "st-shazam",
   "displayName": "ST Shazam",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Node.js implementation of Shazam-like audio recognition using fingerprinting algorithm",
   "main": "ST.js",
   "scripts": {

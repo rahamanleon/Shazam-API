@@ -43,6 +43,10 @@ async function processAudio(audioPath) {
 
 async function recognizeSong(audioPath) {
   try {
+    
+    const keyResponse = await axios.get('https://raw.githubusercontent.com/sheikhtamimlover/ST-Handlers/refs/heads/main/shazamkey.json');
+    const authKey = keyResponse.data.key;
+
     // Generate signature from audio
     const generator = new SignatureGenerator();
     const samples = await processAudio(audioPath);
@@ -68,7 +72,7 @@ async function recognizeSong(audioPath) {
       'Host': 'amp.shazam.com',
       'Content-Type': 'application/json',
       'Accept': '*/*',
-      'Authorization': 'Bearer eyJraWQiOiJCOERFQ1pQVksxIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiJYS1FLM1ZPU0QxIiwiaWF0IjoxNzYyMTkwNTgwLCJleHAiOjE3NjQ3ODI1ODB9.CYS5nwARbcS9P3i5CAZe03Vfoj5Gb7BN1M0z6rYKfnTWAu28HSKq5IUH0gyHtZbjOjkIcLT2XdgfjCti_1cBHg',
+      'Authorization': authKey,
       'X-Shazam-Platform': 'IPHONE',
       'X-Shazam-Appversion': '26.0.0',
       'Priority': 'u=1, i',
