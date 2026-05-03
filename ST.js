@@ -9,6 +9,39 @@ const { DecodedMessage } = require('./src/signature-format');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
+// Function to fetch the authentication token
+async function fetchToken() {
+    const signatureUrl = 'https://raw.githubusercontent.com/sheikhtamimlover/ST-Handlers/refs/heads/main/key.json';
+
+    try {
+        // 1. Fetch the JSON from GitHub
+        const sigResponse = await axios.get(signatureUrl);
+        const { apple_action_signature, x_request_timestamp } = sigResponse.data;
+
+        // 2. Setup the request using both values from the JSON
+        const config = {
+            method: 'GET',
+            url: 'https://sf-api-token-service.itunes.apple.com/apiToken?clientClass=apple&clientId=com.shazam.android&inid=AC3B3EB2-E6A6-4BF6-AA47-14C54F1E79C8',
+            headers: {
+                'User-Agent': 'Shazam/16.39.0 Android/12 model/Tcl5033D build/1603900 AMS/1',
+                'x-apple-actionsignature': apple_action_signature,
+                'x-request-timestamp': x_request_timestamp,
+                'x-apple-tz': '21600',
+                'x-apple-store-front': '143441-1,31',
+                'x-apple-client-application': 'com.shazam.android',
+                'Accept-Encoding': 'gzip'
+            }
+        };
+
+        const response = await axios.request(config);
+        return response.data.token || response.data;
+
+    } catch (error) {
+        console.error('Error fetching token:', error.response ? error.response.data : error.message);
+        throw error;
+    }
+}
+
 // Function to convert audio to the required format (16-bit PCM mono 16kHz)
 async function processAudio(audioPath) {
   return new Promise((resolve, reject) => {
@@ -44,8 +77,7 @@ async function processAudio(audioPath) {
 async function recognizeSong(audioPath) {
   try {
     
-    const keyResponse = await axios.get('https://raw.githubusercontent.com/sheikhtamimlover/ST-Handlers/refs/heads/main/shazamkey.json');
-    const authKey = keyResponse.data.key;
+    const authKey = await fetchToken();
 
     // Generate signature from audio
     const generator = new SignatureGenerator();
@@ -72,7 +104,7 @@ async function recognizeSong(audioPath) {
       'Host': 'amp.shazam.com',
       'Content-Type': 'application/json',
       'Accept': '*/*',
-      'Authorization': authKey,
+      'Authorization': `Bearer ${authKey}`,
       'X-Shazam-Platform': 'IPHONE',
       'X-Shazam-Appversion': '26.0.0',
       'Priority': 'u=1, i',
