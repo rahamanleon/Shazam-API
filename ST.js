@@ -2,6 +2,8 @@
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
+const path = require('path');
+const os = require('os');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const { SignatureGenerator } = require('./src/algorithm');
@@ -45,7 +47,7 @@ async function fetchToken() {
 // Function to convert audio to the required format (16-bit PCM mono 16kHz)
 async function processAudio(audioPath) {
   return new Promise((resolve, reject) => {
-    const outputPath = './temp_audio.raw';
+    const outputPath = path.join(os.tmpdir(), 'temp_audio_' + Date.now() + '.raw');
 
     // Convert audio to 16-bit PCM mono 16kHz
     ffmpeg(audioPath)

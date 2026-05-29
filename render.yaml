@@ -5,6 +5,8 @@ services:
     repo: https://github.com/rahamanleon/Shazam-API
     plan: free
     region: oregon
+    branch: main
+    autoDeploy: true
     healthCheckPath: /health
     buildCommand: npm install
     startCommand: node api-server.js

@@ -17,6 +17,9 @@
   ],
   "author": "Rahaman Leon",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/rahamanleon/Shazam-API.git"
