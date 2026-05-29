@@ -58,7 +58,7 @@ function cleanup(filePath) {
 
 // ── Routes ──────────────────────────────────────────────
 
-// Debug: raw Shazam response (no transformation)
+// Debug: raw Shazam v2 response (no transformation)
 app.post('/debug/recognize-raw', (req, res) => {
   upload.single('audio')(req, res, async (err) => {
     if (err) return res.status(400).json({ error: err.message });
@@ -66,7 +66,6 @@ app.post('/debug/recognize-raw', (req, res) => {
 
     const filePath = req.file.path;
     try {
-      // Don't use recognizeSong's transformation - call internal functions directly
       const { fetchToken, processAudio } = require('./ST.js');
       const { SignatureGenerator } = require('./src/algorithm');
       const { v4: uuidv4 } = require('uuid');
@@ -110,25 +109,17 @@ app.post('/debug/recognize-raw', (req, res) => {
       };
 
       const v2Url = `https://amp.shazam.com/match/v2/en-US/US/iphone/${deviceId}/${sessionId}`;
-      const v2resp = await axios.post(v2Url, requestData, { headers, params: queryParams, timeout: 30000 });
-      
-      // Also try v1
-      let v1data = null;
-      try {
-        const v1Url = `https://amp.shazam.com/match/v1/en-US/US/iphone/${deviceId}/${sessionId}`;
-        const v1resp = await axios.post(v1Url, requestData, { headers, params: { ...queryParams, matchv2t: 'false' }, timeout: 15000 });
-        v1data = v1resp.data;
-      } catch(e) { v1data = { error: e.message }; }
+      const v2resp = await axios.post(v2Url, requestData, { headers, params: queryParams, timeout: 60000 });
 
       cleanup(filePath);
       res.json({
-        v2_status: v2resp.status,
-        v2_response: v2resp.data,
-        v1_response: v1data
+        status: v2resp.status,
+        headers: v2resp.headers,
+        data: v2resp.data
       });
     } catch (error) {
       cleanup(filePath);
-      res.status(500).json({ error: error.message, stack: error.stack });
+      res.status(500).json({ error: error.message, stack: error.stack?.split('\n').slice(0,5).join('\n') });
     }
   });
 });
