@@ -161,39 +161,47 @@ async function recognizeSong(audioPath) {
 
     // Transform Shazam API v2 response into the expected format
     if (data && data.results && data.results.matches && data.results.matches.length > 0) {
+      const match = data.results.matches[0];
+      const songId = match.id;
+      const songType = match.type || 'shazam-songs';
+      
+      // Try to get resource details from response if available
+      let trackData = data.resources?.[songType]?.[songId];
+      
+      // If no embedded resources, fetch track details from the href URL
+      if (!trackData && match.href) {
+        try {
+          console.log('Fetching track details from:', match.href);
+          const trackResponse = await axios.get(match.href, {
+            headers: {
+              'User-Agent': 'Shazam/16.39.0 Android/12 model/Tcl5033D build/1603900 AMS/1',
+              'Accept': 'application/json'
+            },
+            timeout: 10000
+          });
+          trackData = trackResponse.data;
+          console.log('Track response keys:', Object.keys(trackData));
+        } catch (fetchErr) {
+          console.error('Failed to fetch track details:', fetchErr.message);
+        }
+      }
+
       const transformed = {
-        matches: data.results.matches.map(match => {
-          const songId = match.id;
-          const songType = match.type || 'shazam-songs';
-          const resource = data.resources?.[songType]?.[songId];
-          
-          if (resource) {
-            return {
-              track: {
-                key: songId,
-                title: resource.title || null,
-                subtitle: resource.subtitle || resource.artist || null,
-                images: resource.images || null,
-                url: resource.url || match.href || null,
-                genres: resource.genres || null,
-                sections: resource.sections || null
-              }
-            };
+        matches: [{
+          track: {
+            key: songId,
+            title: trackData?.title || null,
+            subtitle: trackData?.subtitle || trackData?.artist || null,
+            images: trackData?.images || null,
+            url: trackData?.url || match.href || null,
+            genres: trackData?.genres || null,
+            sections: trackData?.sections || null
           }
-          
-          return {
-            track: {
-              key: songId,
-              title: null,
-              subtitle: null,
-              url: match.href || null
-            }
-          };
-        }),
+        }],
         _meta: data.meta || null
       };
       
-      console.log('Transformed response with', transformed.matches.length, 'matches');
+      console.log('Transformed response:', JSON.stringify(transformed).substring(0, 500));
       return transformed;
     }
 
