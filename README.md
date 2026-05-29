@@ -1,140 +1,225 @@
-# ST-Shazam
+# Shazam-API 🎵
 
-> **Package Name:** `st-shazam` (npm compatible) | **Display Name:** ST Shazam
+> A production-ready RESTful API wrapper for ST-Shazam audio recognition — identify songs from audio files with ease.
 
-A Node.js implementation of Shazam-like audio recognition using advanced audio fingerprinting algorithms. This project can identify songs from audio files by generating acoustic fingerprints and matching them against the Shazam database.
-
-## 🎵 Features
-
-- **Audio Recognition**: Identify songs from audio files (MP3, WAV, etc.)
-- **Audio Fingerprinting**: Generate unique acoustic signatures using FFT and peak detection
-- **Shazam API Integration**: Match fingerprints against Shazam's vast music database
-- **Audio Processing**: Automatic conversion and normalization of audio files
-
-## 📋 Requirements
-
-- Node.js (v14 or higher)
-- FFmpeg (automatically installed via @ffmpeg-installer/ffmpeg)
-
-## 🚀 Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/rahamanleon/Shazam-API.git
-
-# Navigate to project directory
-cd Shazam-API
-
-# Install dependencies
-npm install
-```
-
-## 💻 Usage
-
-### Command Line
-
-```bash
-# Recognize a song from an audio file
-node ST.js <path_to_audio_file>
-
-# Or use npm start
-npm start ./audio.mp3
-
-# Example
-node ST.js ./audio.mp3
-```
-
-### As a Module
-
-```javascript
-const { recognizeSong } = require('st-shazam');
-// Or if using locally: const { recognizeSong } = require('./index.js');
-
-async function identify() {
-  try {
-    const result = await recognizeSong('./your-audio-file.mp3');
-    
-    if (result.matches && result.matches.length > 0) {
-      console.log('Song found!');
-      console.log('Title:', result.matches[0].track?.title);
-      console.log('Artist:', result.matches[0].track?.subtitle);
-    } else {
-      console.log('No matches found');
-    }
-  } catch (error) {
-    console.error('Recognition failed:', error);
-  }
-}
-
-identify();
-```
-
-## 🔧 How It Works
-
-1. **Audio Processing**: The input audio is converted to mono 16kHz PCM format using FFmpeg
-2. **Fingerprint Generation**: Audio samples are analyzed using FFT to generate a unique acoustic signature
-3. **API Request**: The fingerprint is sent to Shazam's API for matching
-4. **Result**: Returns song metadata including title, artist, album, and more
-
-## 📦 Dependencies
-
-- **axios**: HTTP client for API requests
-- **uuid**: Generate unique device and session IDs
-- **fluent-ffmpeg**: Audio processing and format conversion
-- **@ffmpeg-installer/ffmpeg**: FFmpeg binary installer
-- **fft.js**: Fast Fourier Transform implementation
-
-## 📁 Project Structure
-
-```
-ST-Shazam/
-├── src/
-│   ├── algorithm.js         # Fingerprint generation algorithm
-│   ├── signature-format.js  # Signature encoding/decoding
-│   └── hanning.js           # Hanning window function
-├── ST.js                    # Main entry point (CLI tool)
-├── index.js                 # Core module exports (recognizeSong, processAudio)
-├── package.json             # Project configuration
-└── README.md                # This file
-```
-
-## 🔑 API Information
-
-This project uses Shazam's unofficial API with an included authentication token. The package works out of the box without requiring any additional setup or configuration.
-
-## 🎯 Use Cases
-
-- Music identification apps
-- Audio recognition services
-- Music discovery platforms
-- Audio content analysis tools
-- Educational projects on audio processing
-
-## ⚠️ Limitations
-
-- Recognition accuracy depends on audio quality
-- Requires internet connection for API access
-- API rate limits may apply
-- Only identifies songs in Shazam's database
-
-## 👨‍💻 **Author**
-
-**Rahaman Leon**
-- GitHub: [@rahamanleon](https://github.com/rahamanleon)
-
-## 📄 License
-
-MIT License - feel free to use this project for personal or commercial purposes.
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/rahamanleon/Shazam-API/issues).
-
-## 🌟 Acknowledgments
-
-- Shazam for their amazing music recognition technology
-- The open-source community for the audio processing libraries
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js)](https://nodejs.org)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Deploy on Render](https://img.shields.io/badge/Deploy%20on-Render-46E3B7?logo=render)](https://render.com)
 
 ---
 
-Made with ❤️ by Rahaman Leon
+## ✨ What It Does
+
+Upload an audio file → get back song metadata (title, artist, album, artwork).  
+Powered by acoustic fingerprinting via ST-Shazam matched against Shazam's database.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/rahamanleon/Shazam-API.git
+cd Shazam-API
+npm install
+```
+
+### 2. Start the Server
+
+```bash
+node api-server.js
+```
+
+The API will be live at **http://localhost:3000**.
+
+### 3. Recognize a Song
+
+```bash
+curl -X POST http://localhost:3000/recognize \
+  -F "audio=@/path/to/your/song.mp3"
+```
+
+#### Response
+
+```json
+{
+  "success": true,
+  "data": {
+    "title": "Blinding Lights",
+    "artist": "The Weeknd",
+    "album": "After Hours",
+    "genre": "Pop",
+    "artwork": "https://...",
+    "matches": [...]
+  },
+  "meta": {
+    "duration": "0:32",
+    "fingerprint": "8a3f7c..."
+  }
+}
+```
+
+---
+
+## 📚 API Reference
+
+### `POST /recognize`
+
+Recognize a song from an audio file.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `audio` | File | Audio file (MP3, WAV, M4A, FLAC, etc.) — multipart form field |
+
+**Success (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "title": "Song Title",
+    "artist": "Artist Name",
+    "subtitle": "Featured Artist",
+    "album": "Album Name",
+    "genre": "Genre",
+    "artwork": "https://...",
+    "matches": [...]
+  }
+}
+```
+
+**Error (400/500):**
+```json
+{
+  "success": false,
+  "error": "No audio file provided"
+}
+```
+
+### `GET /health`
+
+Health check endpoint (useful for deployment monitoring).
+
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-05-29T14:00:00Z",
+  "uptime": 12345
+}
+```
+
+### `GET /`
+
+Returns API information and available endpoints.
+
+---
+
+## 🧪 CLI Usage (Direct)
+
+You can also use the core module directly without the API server:
+
+```bash
+node ST.js ./audio.mp3
+```
+
+Or in your own code:
+
+```javascript
+const { recognizeSong } = require('./index.js');
+
+const result = await recognizeSong('./song.mp3');
+console.log(result.matches[0]?.track?.title);
+```
+
+---
+
+## 🏗️ Project Structure
+
+```
+Shazam-API/
+├── api-server.js          # Express REST API server
+├── ST.js                  # Core ST-Shazam CLI tool
+├── index.js               # Module exports
+├── src/
+│   ├── algorithm.js       # Fingerprint generation (FFT + peaks)
+│   ├── signature-format.js # Signature encoding/decoding
+│   └── hanning.js         # Hanning window function
+├── package.json
+├── render.yaml            # Render Blueprint config
+└── README.md              # You are here
+```
+
+---
+
+## ☁️ Deploy on Render
+
+One-click deploy with the Render Blueprint:
+
+1. Fork or push to your GitHub
+2. Go to [dashboard.render.com](https://dashboard.render.com) → **New Blueprint**
+3. Connect your repo → Render auto-detects `render.yaml`
+
+Or use the deeplink:  
+`https://render.com/deploy?repo=https://github.com/rahamanleon/Shazam-API`
+
+> **Free tier**: 512 MB RAM, sleeps after 15 min idle. Wakes on request.
+
+---
+
+## ⚙️ How It Works
+
+```
+Audio File → FFmpeg (16 kHz mono PCM) → FFT Fingerprinting → Shazam API → Song Metadata
+```
+
+1. **Audio Processing** — Converts input to 16 kHz mono PCM via FFmpeg
+2. **Fingerprinting** — FFT + peak detection generates a unique acoustic signature
+3. **Matching** — Fingerprint is sent to Shazam's API for lookup
+4. **Result** — Returns matched song metadata (title, artist, album, artwork)
+
+---
+
+## 📦 Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `express` | HTTP server & routing |
+| `multer` | Multipart file upload handling |
+| `cors` | Cross-origin requests |
+| `axios` | HTTP client for Shazam API |
+| `fluent-ffmpeg` | Audio conversion |
+| `@ffmpeg-installer/ffmpeg` | Bundled FFmpeg binary |
+| `fft.js` | Fast Fourier Transform |
+| `uuid` | Device/session ID generation |
+
+---
+
+## 🛠️ Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3000` | Server port |
+| `MAX_FILE_SIZE` | `25MB` | Max upload size |
+
+---
+
+## 👨‍💻 Author
+
+**Rahaman Leon** — [@rahamanleon](https://github.com/rahamanleon)
+
+---
+
+## 📄 License
+
+MIT — use it freely for personal or commercial projects.
+
+---
+
+## 🤝 Contributing
+
+Issues, PRs, and feature requests welcome!  
+[Open an issue](https://github.com/rahamanleon/Shazam-API/issues)
+
+---
+
+Made with ❤️ and 🎶 by Rahaman Leon

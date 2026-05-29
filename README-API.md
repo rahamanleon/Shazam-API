@@ -1,40 +1,25 @@
-# Shazam-API 🎵
+# Shazam-API 🎵 — API Reference
 
-A production-ready RESTful API wrapper for ST-Shazam audio recognition. Upload an audio file and get back song metadata (title, artist, album, genre, etc.) identified via Shazam's fingerprinting technology.
+> RESTful API wrapper for ST-Shazam audio recognition.  
+> Upload audio → get back song metadata.
 
-**Live Demo**: Deploy to Render using the Blueprint below.
+**Live URL**: Deploy on Render via Blueprint (see below)
 
 ---
 
-## Quick Start
+## 🔌 Endpoints
 
-```bash
-# Clone
-git clone https://github.com/rahamanleon/Shazam-API.git
-cd Shazam-API
+### `POST /recognize`
 
-# Install
-npm install
+Identify a song from an audio file.
 
-# Start server
-node api-server.js
+**Request**: `multipart/form-data` — field name: `audio`
 
-# Test
-curl -F "audio=@test.mp3" http://localhost:3000/recognize
-```
+| Field | Type | Required | Max | Description |
+|-------|------|----------|-----|-------------|
+| `audio` | File | ✅ | 25 MB | MP3, WAV, M4A, FLAC, OGG, AAC, WMA |
 
-## API Endpoints
-
-### POST `/recognize`
-Upload an audio file to identify a song.
-
-**Request**: `multipart/form-data` with field name `audio`
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `audio` | File | ✅ | Audio file (mp3, wav, ogg, flac, aac, m4a, wma, webm). Max 25 MB. |
-
-**Success Response (200)**:
+**✅ Success (200):**
 ```json
 {
   "success": true,
@@ -52,7 +37,7 @@ Upload an audio file to identify a song.
 }
 ```
 
-**No Match Response (200)**:
+**⚠️ No Match (200):**
 ```json
 {
   "success": false,
@@ -60,16 +45,19 @@ Upload an audio file to identify a song.
 }
 ```
 
-**Error Response (400/500)**:
+**❌ Error (400/500):**
 ```json
 {
-  "error": "Recognition failed",
+  "error": "No audio file provided",
   "detail": "Error message here"
 }
 ```
 
-### GET `/health`
-Health check endpoint for Render zero-downtime deploys.
+---
+
+### `GET /health`
+
+Health check for Render zero-downtime deploys.
 
 ```json
 {
@@ -78,10 +66,15 @@ Health check endpoint for Render zero-downtime deploys.
 }
 ```
 
-### GET `/`
-API information.
+---
 
-## Usage Examples
+### `GET /`
+
+Returns API info and available endpoints.
+
+---
+
+## 💻 Usage Examples
 
 ### cURL
 ```bash
@@ -99,70 +92,82 @@ print(resp.json())
 
 ### Node.js
 ```javascript
-const FormData = require('form-data');
-const fs = require('fs');
-const axios = require('axios');
+import FormData from 'form-data';
+import { createReadStream } from 'fs';
+import axios from 'axios';
 
 const form = new FormData();
-form.append('audio', fs.createReadStream('song.mp3'));
+form.append('audio', createReadStream('song.mp3'));
 
-const resp = await axios.post('https://your-app.onrender.com/recognize', form, {
-  headers: form.getHeaders()
-});
-console.log(resp.data);
+const { data } = await axios.post(
+  'https://your-app.onrender.com/recognize',
+  form,
+  { headers: form.getHeaders() }
+);
+console.log(data);
 ```
 
-## Deploy to Render (Free Tier)
+---
+
+## ☁️ Deploy on Render (Free Tier)
 
 ### One-Click Blueprint
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/blueprint/new?repo=https://github.com/rahamanleon/Shazam-API)
 
-1. Fork/push this repo to your GitHub/GitLab account
-2. Click: [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/blueprint/new?repo=https://github.com/rahamanleon/Shazam-API)
-3. Fill in any secret env vars
-4. Click **Apply**
+### What You Get
+| Resource | Free Tier |
+|----------|-----------|
+| RAM | 512 MB |
+| CPU | 0.1 vCPU (shared) |
+| Hours | 750 / month |
+| Bandwidth | 100 GB / month |
+| Storage | Ephemeral (uploads deleted after request) |
+| Max Upload | 25 MB |
+| Idle Sleep | After 15 min (~30s cold start) |
 
-### Manual render.yaml
+---
 
-The included `render.yaml` configures:
-- **Plan**: Free (512 MB RAM, 0.1 CPU)
-- **Region**: Oregon
-- **Health Check**: `/health`
-- **Build**: `npm install`
-- **Start**: `node api-server.js`
-
-## Free-Tier Caveats
-
-| Constraint | Detail |
-|------------|--------|
-| **CPU/RAM** | 0.1 vCPU, 512 MB — sufficient for audio processing |
-| **Sleep** | Spins down after 15 min idle (wakes on request, ~30s cold start) |
-| **Hours** | 750 hours/month (free web services) |
-| **Storage** | Ephemeral filesystem — uploads deleted after each request |
-| **Bandwidth** | 100 GB/month included |
-| **File Size** | Max 25 MB upload per request |
-| **FFmpeg** | Required for audio conversion (@ffmpeg-installer/ffmpeg included) |
-| **API Limits** | Shazam's unofficial API may have rate limits |
-
-## Architecture
+## 🧠 Architecture
 
 ```
-Request → Express (api-server.js) → ST.js (recognizeSong)
-                                        ├── fetchToken() → Shazam auth
-                                        ├── processAudio() → FFmpeg PCM conversion
-                                        ├── SignatureGenerator → FFT fingerprint
-                                        └── POST to amp.shazam.com → match
-                                    → JSON response
+Client → POST /recognize
+          ↓
+   api-server.js (Express + multer)
+          ↓
+   ST.js (recognizeSong)
+     ├── fetchToken() → Shazam auth
+     ├── processAudio() → FFmpeg → 16kHz mono PCM
+     ├── SignatureGenerator → FFT fingerprint
+     └── POST amp.shazam.com → match
+          ↓
+   JSON response ← Client
 ```
 
-The wrapper (`api-server.js`) is **minimal glue code** — the core Shazam logic in `ST.js`, `src/algorithm.js`, and `src/signature-format.js` is used **untouched**.
+The API wrapper is minimal glue — core fingerprinting logic in `ST.js`, `src/algorithm.js`, and `src/signature-format.js` is used untouched.
 
-## Credits
+---
 
-- **ST-Shazam**: [@sheikhtamimlover](https://github.com/sheikhtamimlover) — original audio recognition library
-- **Shazam-API wrapper**: [@rahamanleon](https://github.com/rahamanleon) — REST API, deployment config, documentation
-- **Deploy skill**: `deploy-on-render` from ClawHub
-- **Tech**: Node.js, Express, multer, fluent-ffmpeg, FFT.js
+## 📦 Dependencies
 
-## License
+| Package | Role |
+|---------|------|
+| `express` | HTTP server |
+| `multer` | File upload handling |
+| `cors` | Cross-origin support |
+| `axios` | Shazam API client |
+| `fluent-ffmpeg` | Audio conversion |
+| `@ffmpeg-installer/ffmpeg` | Bundled FFmpeg |
+| `fft.js` | Fast Fourier Transform |
+| `uuid` | Device/session IDs |
 
-MIT
+---
+
+## 👨‍💻 Author
+
+**Rahaman Leon** — [@rahamanleon](https://github.com/rahamanleon)
+
+---
+
+## 📄 License
+
+MIT — free for personal and commercial use.
