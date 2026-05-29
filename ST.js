@@ -121,12 +121,12 @@ async function recognizeSong(audioPath) {
     const queryParams = {
       recognitionType: 'progressive-with-rolling',
       sampling: 'true',
-      matchv2t: 'true',
+      matchv2t: 'false',
       hidelb: 'true',
       video: 'v3'
     };
 
-    console.log('Sending request to Shazam API...');
+    console.log('Sending request to Shazam v2 API...');
     console.log('Device ID:', deviceId);
     console.log('Session ID:', sessionId);
     console.log('Signature URI length:', signatureUri.length);
@@ -144,31 +144,58 @@ async function recognizeSong(audioPath) {
     // Log full response for debugging when matches exist
     if (data && data.results && data.results.matches && data.results.matches.length > 0) {
       console.log('MATCH FOUND! Match ID:', data.results.matches[0].id);
-      console.log('Response keys:', Object.keys(data));
+      console.log('Response top-level keys:', Object.keys(data));
+      console.log('Has results:', !!data.results);
       console.log('Has resources:', !!data.resources);
+      console.log('Has meta:', !!data.meta);
+      console.log('Full match object:', JSON.stringify(data.results.matches[0]));
+      console.log('Results full:', JSON.stringify(data.results).substring(0, 3000));
       if (data.resources) {
         console.log('Resource types:', Object.keys(data.resources));
-        console.log('Full resources:', JSON.stringify(data.resources).substring(0, 3000));
+        console.log('Full resources:', JSON.stringify(data.resources, null, 2).substring(0, 5000));
       } else {
-        console.log('No resources object - trying alternate paths');
-        // Log the full match object
-        console.log('Match object:', JSON.stringify(data.results.matches[0]));
-        // Log raw results fully
-        console.log('Full results:', JSON.stringify(data.results).substring(0, 2000));
+        console.log('NO RESOURCES in v2 response');
+        // The track data might be embedded differently
+        console.log('Checking alternate data paths...');
+        console.log('Full data:', JSON.stringify(data, null, 2).substring(0, 8000));
       }
-      console.log('Full response data:', JSON.stringify(data, null, 2).substring(0, 5000));
+    } else {
+      console.log('No matches or different structure. Full response:', JSON.stringify(data, null, 2).substring(0, 3000));
     }
 
-    // Transform Shazam API v2 response into the expected format
+    // Transform response - handle both v2 and v1 formats
     if (data && data.results && data.results.matches && data.results.matches.length > 0) {
       const match = data.results.matches[0];
       const songId = match.id;
       const songType = match.type || 'shazam-songs';
       
-      // Try to get resource details from response if available
+      // Try embedded resources first (v2 with resources)
       let trackData = data.resources?.[songType]?.[songId];
       
-      // If no embedded resources, fetch track details from the href URL
+      // Try alternate resource paths
+      if (!trackData && data.resources) {
+        console.log('Trying alternate resource paths...');
+        for (const type of Object.keys(data.resources)) {
+          if (data.resources[type]?.[songId]) {
+            trackData = data.resources[type][songId];
+            console.log('Found in', type);
+            break;
+          }
+        }
+      }
+      
+      // Try embedded track data directly in match
+      if (!trackData && match.track) {
+        console.log('Using match.track');
+        trackData = match.track;
+      }
+      
+      // If no embedded resources, and this is v2 response with track data in a different format
+      if (!trackData && data.meta?.track) {
+        trackData = data.meta.track;
+      }
+      
+      // Fetch track details from href URL if available
       if (!trackData && match.href) {
         try {
           console.log('Fetching track details from:', match.href);
@@ -183,6 +210,29 @@ async function recognizeSong(audioPath) {
           console.log('Track response keys:', Object.keys(trackData));
         } catch (fetchErr) {
           console.error('Failed to fetch track details:', fetchErr.message);
+        }
+      }
+
+      // Fallback to v1 API if no track data found (v2 didn't include it)
+      if (!trackData && !data.resources) {
+        console.log('No resources in v2 response - trying v1 match API...');
+        try {
+          const v1headers = { ...headers, 'Host': 'amp.shazam.com' };
+          const v1Url = `https://amp.shazam.com/match/v1/en-US/US/iphone/${deviceId}/${sessionId}`;
+          const v1resp = await axios.post(v1Url, requestData, { headers: v1headers, params: queryParams, timeout: 15000 });
+          const v1data = v1resp.data;
+          console.log('V1 Status:', v1resp.status);
+          console.log('V1 response:', JSON.stringify(v1data, null, 2).substring(0, 5000));
+          
+          if (v1data && v1data.matches && v1data.matches.length > 0) {
+            const v1match = v1data.matches[0];
+            if (v1match.track) {
+              trackData = v1match.track;
+              console.log('Got track data from v1 API!');
+            }
+          }
+        } catch (v1err) {
+          console.error('V1 fallback failed:', v1err.message);
         }
       }
 
@@ -201,7 +251,7 @@ async function recognizeSong(audioPath) {
         _meta: data.meta || null
       };
       
-      console.log('Transformed response:', JSON.stringify(transformed).substring(0, 500));
+      console.log('Transformed response (first 500 chars):', JSON.stringify(transformed).substring(0, 500));
       return transformed;
     }
 
