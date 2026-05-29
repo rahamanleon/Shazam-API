@@ -58,6 +58,81 @@ function cleanup(filePath) {
 
 // ── Routes ──────────────────────────────────────────────
 
+// Debug: raw Shazam response (no transformation)
+app.post('/debug/recognize-raw', (req, res) => {
+  upload.single('audio')(req, res, async (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: 'No audio file provided.' });
+
+    const filePath = req.file.path;
+    try {
+      // Don't use recognizeSong's transformation - call internal functions directly
+      const { fetchToken, processAudio } = require('./ST.js');
+      const { SignatureGenerator } = require('./src/algorithm');
+      const { v4: uuidv4 } = require('uuid');
+      const axios = require('axios');
+
+      const authKey = await fetchToken();
+      const generator = new SignatureGenerator();
+      const samples = await processAudio(filePath);
+      const signature = generator.getSignature(samples);
+      const signatureUri = signature.encodeToUri();
+
+      const deviceId = uuidv4().toUpperCase();
+      const sessionId = uuidv4().toUpperCase();
+
+      const requestData = {
+        timestamp: Date.now(),
+        timezone: "Asia/Dhaka",
+        signatures: [{ uri: signatureUri, audioSource: "MIC" }]
+      };
+
+      const headers = {
+        'Host': 'amp.shazam.com',
+        'Content-Type': 'application/json',
+        'Accept': '*/*',
+        'Authorization': `Bearer ${authKey}`,
+        'X-Shazam-Platform': 'IPHONE',
+        'X-Shazam-Appversion': '26.0.0',
+        'Priority': 'u=1, i',
+        'X-Shazam-Auth-Retry': '0',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'User-Agent': 'Shazam/5817 CFNetwork/3860.200.71 Darwin/25.1.0'
+      };
+
+      const queryParams = {
+        recognitionType: 'progressive-with-rolling',
+        sampling: 'true',
+        matchv2t: 'true',
+        hidelb: 'true',
+        video: 'v3'
+      };
+
+      const v2Url = `https://amp.shazam.com/match/v2/en-US/US/iphone/${deviceId}/${sessionId}`;
+      const v2resp = await axios.post(v2Url, requestData, { headers, params: queryParams, timeout: 30000 });
+      
+      // Also try v1
+      let v1data = null;
+      try {
+        const v1Url = `https://amp.shazam.com/match/v1/en-US/US/iphone/${deviceId}/${sessionId}`;
+        const v1resp = await axios.post(v1Url, requestData, { headers, params: { ...queryParams, matchv2t: 'false' }, timeout: 15000 });
+        v1data = v1resp.data;
+      } catch(e) { v1data = { error: e.message }; }
+
+      cleanup(filePath);
+      res.json({
+        v2_status: v2resp.status,
+        v2_response: v2resp.data,
+        v1_response: v1data
+      });
+    } catch (error) {
+      cleanup(filePath);
+      res.status(500).json({ error: error.message, stack: error.stack });
+    }
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });

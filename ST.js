@@ -270,4 +270,4 @@ async function recognizeSong(audioPath) {
 }
 
 // Export for use as a module
-module.exports = { recognizeSong, processAudio };
+module.exports = { recognizeSong, processAudio, fetchToken };
