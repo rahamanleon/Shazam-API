@@ -138,15 +138,32 @@ async function recognizeSong(audioPath) {
 
     console.log('\n=== RESPONSE ===');
     console.log('Status:', response.status);
+    console.log('Response headers:', JSON.stringify(response.headers));
+    console.log('Response data type:', typeof response.data);
     console.log('Data keys:', Object.keys(response.data));
-    
+    console.log('Full raw response (first 2000 chars):', JSON.stringify(response.data, null, 2).substring(0, 2000));
+
+    // Check for any result variants
+    const resultVariants = [];
+    if (response.data) {
+      ['matches', 'results', 'data', 'match', 'song', 'tracks'].forEach(k => {
+        if (k in response.data) {
+          resultVariants.push({key: k, type: typeof response.data[k], val: JSON.stringify(response.data[k]).substring(0, 200)});
+        }
+      });
+    }
+    console.log('Result variants found:', JSON.stringify(resultVariants));
+
     // Add debug info to response
     if (response.data) {
       response.data._debug = {
         status: response.status,
         hasMatches: 'matches' in response.data,
         matchCount: response.data.matches ? response.data.matches.length : 0,
-        matchKeys: response.data.matches && response.data.matches[0] ? Object.keys(response.data.matches[0]) : null
+        matchKeys: response.data.matches && response.data.matches[0] ? Object.keys(response.data.matches[0]) : null,
+        allKeys: Object.keys(response.data),
+        resultVariants: resultVariants,
+        contentType: response.headers['content-type'] || null
       };
     }
 
