@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: shazam-api
+    runtime: node
+    repo: https://github.com/sheikhtamimlover/Shazam
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    buildCommand: npm install
+    startCommand: node api-server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"

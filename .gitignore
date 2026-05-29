@@ -135,4 +135,11 @@ dist
 # ST Shazam specific temporary files
 temp_audio.raw
 *.raw
-*.pcm
+*.pcm# Uploaded audio files (temp storage)
+uploads/
+*.raw
+temp_audio.raw
+
+# Node
+node_modules/
+npm-debug.log*
