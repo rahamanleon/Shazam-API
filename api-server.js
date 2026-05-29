@@ -171,18 +171,21 @@ app.post('/recognize', (req, res) => {
       // Format response
       if (result.matches && result.matches.length > 0) {
         const track = result.matches[0].track;
+        const genre = track.genres?.primary || null;
         res.json({
           success: true,
           song: {
             title: track.title || null,
             artist: track.subtitle || null,
-            album: track.sections?.[0]?.metadata?.find(m => m.title === 'Album')?.text || null,
-            genre: track.genres?.primary || null,
-            releaseDate: track.sections?.[0]?.metadata?.find(m => m.title === 'Released')?.text || null,
-            label: track.sections?.[0]?.metadata?.find(m => m.title === 'Label')?.text || null,
-            image: track.images?.coverarthq || track.images?.coverart || null,
+            album: track.album || null,
+            genre: genre,
+            releaseDate: track.releaseDate || null,
+            label: track.label || null,
+            image: track.images?.coverarthq || track.images?.coverArtHq || track.images?.coverart || track.images?.coverArt || null,
             url: track.url || null,
-            shazamId: track.key || null
+            shazamId: track.key || null,
+            share: track.share || null,
+            preview: track.streaming?.preview || null
           }
         });
       } else {

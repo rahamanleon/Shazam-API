@@ -163,95 +163,47 @@ async function recognizeSong(audioPath) {
       console.log('No matches or different structure. Full response:', JSON.stringify(data, null, 2).substring(0, 3000));
     }
 
-    // Transform response - handle both v2 and v1 formats
+    // Transform Shazam API v2 response into the expected format
     if (data && data.results && data.results.matches && data.results.matches.length > 0) {
       const match = data.results.matches[0];
       const songId = match.id;
       const songType = match.type || 'shazam-songs';
       
-      // Try embedded resources first (v2 with resources)
+      // Track data in v2 is under resources.[type].[id].attributes
       let trackData = data.resources?.[songType]?.[songId];
+      let attrs = trackData?.attributes || null;
       
-      // Try alternate resource paths
-      if (!trackData && data.resources) {
-        console.log('Trying alternate resource paths...');
-        for (const type of Object.keys(data.resources)) {
-          if (data.resources[type]?.[songId]) {
-            trackData = data.resources[type][songId];
-            console.log('Found in', type);
-            break;
-          }
-        }
+      // Also get album info from resources if available
+      let albumData = null;
+      if (trackData?.relationships?.albums?.data?.[0]) {
+        const albumRel = trackData.relationships.albums.data[0];
+        albumData = data.resources?.[albumRel.type]?.[albumRel.id];
       }
       
-      // Try embedded track data directly in match
-      if (!trackData && match.track) {
-        console.log('Using match.track');
-        trackData = match.track;
-      }
+      // Log what we found  
+      console.log('Match:', songId, 'Title:', attrs?.title, 'Artist:', attrs?.artist);
+      console.log('Album:', albumData?.attributes?.name);
       
-      // If no embedded resources, and this is v2 response with track data in a different format
-      if (!trackData && data.meta?.track) {
-        trackData = data.meta.track;
-      }
-      
-      // Fetch track details from href URL if available
-      if (!trackData && match.href) {
-        try {
-          console.log('Fetching track details from:', match.href);
-          const trackResponse = await axios.get(match.href, {
-            headers: {
-              'User-Agent': 'Shazam/16.39.0 Android/12 model/Tcl5033D build/1603900 AMS/1',
-              'Accept': 'application/json'
-            },
-            timeout: 10000
-          });
-          trackData = trackResponse.data;
-          console.log('Track response keys:', Object.keys(trackData));
-        } catch (fetchErr) {
-          console.error('Failed to fetch track details:', fetchErr.message);
-        }
-      }
-
-      // Fallback to v1 API if no track data found (v2 didn't include it)
-      if (!trackData && !data.resources) {
-        console.log('No resources in v2 response - trying v1 match API...');
-        try {
-          const v1headers = { ...headers, 'Host': 'amp.shazam.com' };
-          const v1Url = `https://amp.shazam.com/match/v1/en-US/US/iphone/${deviceId}/${sessionId}`;
-          const v1resp = await axios.post(v1Url, requestData, { headers: v1headers, params: queryParams, timeout: 15000 });
-          const v1data = v1resp.data;
-          console.log('V1 Status:', v1resp.status);
-          console.log('V1 response:', JSON.stringify(v1data, null, 2).substring(0, 5000));
-          
-          if (v1data && v1data.matches && v1data.matches.length > 0) {
-            const v1match = v1data.matches[0];
-            if (v1match.track) {
-              trackData = v1match.track;
-              console.log('Got track data from v1 API!');
-            }
-          }
-        } catch (v1err) {
-          console.error('V1 fallback failed:', v1err.message);
-        }
-      }
-
       const transformed = {
         matches: [{
           track: {
             key: songId,
-            title: trackData?.title || null,
-            subtitle: trackData?.subtitle || trackData?.artist || null,
-            images: trackData?.images || null,
-            url: trackData?.url || match.href || null,
-            genres: trackData?.genres || null,
-            sections: trackData?.sections || null
+            title: attrs?.title || null,
+            subtitle: attrs?.artist || attrs?.subtitle || null,
+            images: attrs?.images || null,
+            url: attrs?.webUrl || match.href || null,
+            genres: attrs?.genres || null,
+            label: attrs?.label || null,
+            album: albumData?.attributes?.name || null,
+            releaseDate: albumData?.attributes?.releaseDate || null,
+            share: attrs?.share || null,
+            streaming: attrs?.streaming || null
           }
         }],
         _meta: data.meta || null
       };
       
-      console.log('Transformed response (first 500 chars):', JSON.stringify(transformed).substring(0, 500));
+      console.log('Transformed:', JSON.stringify(transformed).substring(0, 500));
       return transformed;
     }
 
