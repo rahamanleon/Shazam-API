@@ -143,3 +143,10 @@ temp_audio.raw
 # Node
 node_modules/
 npm-debug.log*
+# Temporary credential files
+.git-creds
+.netrc
+.git-credentials
+.git-askpass.sh
+askpass.sh
+push.sh
