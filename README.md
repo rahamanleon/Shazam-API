@@ -20,10 +20,10 @@ A Node.js implementation of Shazam-like audio recognition using advanced audio f
 
 ```bash
 # Clone the repository
-git clone https://github.com/sheikhtamimlover/ST-Shazam.git
+git clone https://github.com/rahamanleon/Shazam-API.git
 
 # Navigate to project directory
-cd ST-Shazam
+cd Shazam-API
 
 # Install dependencies
 npm install
@@ -117,11 +117,10 @@ This project uses Shazam's unofficial API with an included authentication token.
 - API rate limits may apply
 - Only identifies songs in Shazam's database
 
-## 👨‍💻 Author
+## 👨‍💻 **Author**
 
-**Sheikh Tamim**
-- Instagram: [@sheikh.tamim_lover](https://instagram.com/sheikh.tamim_lover)
-- GitHub: [@sheikhtamimlover](https://github.com/sheikhtamimlover)
+**Rahaman Leon**
+- GitHub: [@rahamanleon](https://github.com/rahamanleon)
 
 ## 📄 License
 
@@ -129,7 +128,7 @@ MIT License - feel free to use this project for personal or commercial purposes.
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/sheikhtamimlover/ST-Shazam/issues).
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/rahamanleon/Shazam-API/issues).
 
 ## 🌟 Acknowledgments
 
@@ -138,4 +137,4 @@ Contributions, issues, and feature requests are welcome! Feel free to check the 
 
 ---
 
-Made with ❤️ by Sheikh Tamim
+Made with ❤️ by Rahaman Leon

@@ -15,16 +15,16 @@
     "music-identification",
     "audio-processing"
   ],
-  "author": "Sheikh Tamim <sheikh.tamim_lover>",
+  "author": "Rahaman Leon",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sheikhtamimlover/ST-Shazam.git"
+    "url": "https://github.com/rahamanleon/Shazam-API.git"
   },
   "bugs": {
-    "url": "https://github.com/sheikhtamimlover/ST-Shazam/issues"
+    "url": "https://github.com/rahamanleon/Shazam-API/issues"
   },
-  "homepage": "https://github.com/sheikhtamimlover/ST-Shazam#readme",
+  "homepage": "https://github.com/rahamanleon/Shazam-API#readme",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "axios": "^1.13.2",

@@ -10,8 +10,8 @@ A production-ready RESTful API wrapper for ST-Shazam audio recognition. Upload a
 
 ```bash
 # Clone
-git clone https://github.com/sheikhtamimlover/Shazam.git
-cd Shazam
+git clone https://github.com/rahamanleon/Shazam-API.git
+cd Shazam-API
 
 # Install
 npm install
@@ -117,7 +117,7 @@ console.log(resp.data);
 ### One-Click Blueprint
 
 1. Fork/push this repo to your GitHub/GitLab account
-2. Click: [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/blueprint/new?repo=https://github.com/YOUR_USERNAME/Shazam)
+2. Click: [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/blueprint/new?repo=https://github.com/rahamanleon/Shazam-API)
 3. Fill in any secret env vars
 4. Click **Apply**
 
@@ -159,6 +159,7 @@ The wrapper (`api-server.js`) is **minimal glue code** — the core Shazam logic
 ## Credits
 
 - **ST-Shazam**: [@sheikhtamimlover](https://github.com/sheikhtamimlover) — original audio recognition library
+- **Shazam-API wrapper**: [@rahamanleon](https://github.com/rahamanleon) — REST API, deployment config, documentation
 - **Deploy skill**: `deploy-on-render` from ClawHub
 - **Tech**: Node.js, Express, multer, fluent-ffmpeg, FFT.js
 
