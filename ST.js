@@ -138,7 +138,17 @@ async function recognizeSong(audioPath) {
 
     console.log('\n=== RESPONSE ===');
     console.log('Status:', response.status);
-    console.log('Data:', JSON.stringify(response.data, null, 2));
+    console.log('Data keys:', Object.keys(response.data));
+    
+    // Add debug info to response
+    if (response.data) {
+      response.data._debug = {
+        status: response.status,
+        hasMatches: 'matches' in response.data,
+        matchCount: response.data.matches ? response.data.matches.length : 0,
+        matchKeys: response.data.matches && response.data.matches[0] ? Object.keys(response.data.matches[0]) : null
+      };
+    }
 
     return response.data;
   } catch (error) {
