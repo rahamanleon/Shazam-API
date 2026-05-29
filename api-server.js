@@ -4,7 +4,7 @@
  * 
  * Endpoints:
  *   POST /recognize  — Upload an audio file, get Shazam recognition result
- *   GET  /health     — Health check (for Render)
+ *   GET  /health     — Health check
  *   GET  /           — API info
  */
 
@@ -140,7 +140,7 @@ app.get('/', (req, res) => {
       GET: '/health — Health check',
       GET: '/ — This info'
     },
-    usage: 'curl -F "audio=@song.mp3" https://<your-app>.onrender.com/recognize'
+    usage: 'curl -F "audio=@song.mp3" <your-server>/recognize'
   });
 });
 
@@ -215,9 +215,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Shazam-API running on port ${PORT}`);
   console.log(`   Health check: http://0.0.0.0:${PORT}/health`);
-  if (process.env.RENDER) {
-    console.log(`   🌐 Live URL: https://${process.env.RENDER_EXTERNAL_URL}`);
-  }
+  console.log(`   Server started`);
 });
 
 module.exports = app;
