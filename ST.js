@@ -144,7 +144,19 @@ async function recognizeSong(audioPath) {
     // Log full response for debugging when matches exist
     if (data && data.results && data.results.matches && data.results.matches.length > 0) {
       console.log('MATCH FOUND! Match ID:', data.results.matches[0].id);
-      console.log('Full response data:', JSON.stringify(data, null, 2));
+      console.log('Response keys:', Object.keys(data));
+      console.log('Has resources:', !!data.resources);
+      if (data.resources) {
+        console.log('Resource types:', Object.keys(data.resources));
+        console.log('Full resources:', JSON.stringify(data.resources).substring(0, 3000));
+      } else {
+        console.log('No resources object - trying alternate paths');
+        // Log the full match object
+        console.log('Match object:', JSON.stringify(data.results.matches[0]));
+        // Log raw results fully
+        console.log('Full results:', JSON.stringify(data.results).substring(0, 2000));
+      }
+      console.log('Full response data:', JSON.stringify(data, null, 2).substring(0, 5000));
     }
 
     // Transform Shazam API v2 response into the expected format
