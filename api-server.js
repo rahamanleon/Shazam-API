@@ -117,18 +117,12 @@ app.post('/recognize', (req, res) => {
             image: track.images?.coverarthq || track.images?.coverart || null,
             url: track.url || null,
             shazamId: track.key || null
-          },
-          debug: result._debug || null
+          }
         });
       } else {
         res.json({
           success: false,
-          message: 'No matches found for this audio',
-          debug: result._debug || {
-            hasMatches: 'matches' in (result || {}),
-            resultKeys: result ? Object.keys(result) : ['result is null'],
-            status: 'processed but no matches'
-          }
+          message: 'No matches found for this audio'
         });
       }
     } catch (error) {

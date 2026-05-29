@@ -138,36 +138,55 @@ async function recognizeSong(audioPath) {
 
     console.log('\n=== RESPONSE ===');
     console.log('Status:', response.status);
-    console.log('Response headers:', JSON.stringify(response.headers));
-    console.log('Response data type:', typeof response.data);
-    console.log('Data keys:', Object.keys(response.data));
-    console.log('Full raw response (first 2000 chars):', JSON.stringify(response.data, null, 2).substring(0, 2000));
 
-    // Check for any result variants
-    const resultVariants = [];
-    if (response.data) {
-      ['matches', 'results', 'data', 'match', 'song', 'tracks'].forEach(k => {
-        if (k in response.data) {
-          resultVariants.push({key: k, type: typeof response.data[k], val: JSON.stringify(response.data[k]).substring(0, 200)});
-        }
-      });
+    const data = response.data;
+    
+    // Log full response for debugging when matches exist
+    if (data && data.results && data.results.matches && data.results.matches.length > 0) {
+      console.log('MATCH FOUND! Match ID:', data.results.matches[0].id);
+      console.log('Full response data:', JSON.stringify(data, null, 2));
     }
-    console.log('Result variants found:', JSON.stringify(resultVariants));
 
-    // Add debug info to response
-    if (response.data) {
-      response.data._debug = {
-        status: response.status,
-        hasMatches: 'matches' in response.data,
-        matchCount: response.data.matches ? response.data.matches.length : 0,
-        matchKeys: response.data.matches && response.data.matches[0] ? Object.keys(response.data.matches[0]) : null,
-        allKeys: Object.keys(response.data),
-        resultVariants: resultVariants,
-        contentType: response.headers['content-type'] || null
+    // Transform Shazam API v2 response into the expected format
+    if (data && data.results && data.results.matches && data.results.matches.length > 0) {
+      const transformed = {
+        matches: data.results.matches.map(match => {
+          const songId = match.id;
+          const songType = match.type || 'shazam-songs';
+          const resource = data.resources?.[songType]?.[songId];
+          
+          if (resource) {
+            return {
+              track: {
+                key: songId,
+                title: resource.title || null,
+                subtitle: resource.subtitle || resource.artist || null,
+                images: resource.images || null,
+                url: resource.url || match.href || null,
+                genres: resource.genres || null,
+                sections: resource.sections || null
+              }
+            };
+          }
+          
+          return {
+            track: {
+              key: songId,
+              title: null,
+              subtitle: null,
+              url: match.href || null
+            }
+          };
+        }),
+        _meta: data.meta || null
       };
+      
+      console.log('Transformed response with', transformed.matches.length, 'matches');
+      return transformed;
     }
 
-    return response.data;
+    // Return as-is if no matches found
+    return data;
   } catch (error) {
     console.error('Error recognizing song:');
     if (error.response) {
