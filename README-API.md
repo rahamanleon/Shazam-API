@@ -1,17 +1,13 @@
 # Shazam-API 🎵 — API Reference
 
-> RESTful API wrapper for ST-Shazam audio recognition.  
+> RESTful API wrapper for audio recognition.  
 > Upload audio → get back song metadata.
-
-**Live URL**: Deploy on Render via Blueprint (see below)
 
 ---
 
 ## 🔌 Endpoints
 
 ### `POST /recognize`
-
-Identify a song from an audio file.
 
 **Request**: `multipart/form-data` — field name: `audio`
 
@@ -28,49 +24,33 @@ Identify a song from an audio file.
     "artist": "The Weeknd",
     "album": "After Hours",
     "genre": "R&B/Soul",
-    "releaseDate": "2020-03-20",
-    "label": "Republic Records",
     "image": "https://...coverart.jpg",
-    "url": "https://www.shazam.com/track/123",
-    "shazamId": "123456789"
+    "url": "https://www.shazam.com/track/123"
   }
 }
 ```
 
 **⚠️ No Match (200):**
 ```json
-{
-  "success": false,
-  "message": "No matches found for this audio"
-}
+{ "success": false, "message": "No matches found for this audio" }
 ```
 
 **❌ Error (400/500):**
 ```json
-{
-  "error": "No audio file provided",
-  "detail": "Error message here"
-}
+{ "error": "No audio file provided", "detail": "..." }
 ```
-
----
 
 ### `GET /health`
 
 Health check for Render zero-downtime deploys.
 
 ```json
-{
-  "status": "healthy",
-  "timestamp": "2026-05-29T12:00:00.000Z"
-}
+{ "status": "healthy", "timestamp": "2026-05-29T12:00:00.000Z" }
 ```
-
----
 
 ### `GET /`
 
-Returns API info and available endpoints.
+API information + available endpoints.
 
 ---
 
@@ -114,16 +94,27 @@ console.log(data);
 ### One-Click Blueprint
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/blueprint/new?repo=https://github.com/rahamanleon/Shazam-API)
 
-### What You Get
-| Resource | Free Tier |
-|----------|-----------|
+1. Click the button above
+2. Render auto-detects `render.yaml`
+3. Deploys in ~2 minutes
+
+### Manual Setup
+| Setting | Value |
+|---------|-------|
+| Runtime | **Node** |
+| Build Command | `npm install` |
+| Start Command | `node api-server.js` |
+| Health Check | `/health` |
+| Plan | **Free** |
+
+### 🆓 Free Tier Limits
+| Resource | Limit |
+|----------|-------|
 | RAM | 512 MB |
-| CPU | 0.1 vCPU (shared) |
-| Hours | 750 / month |
+| CPU | 0.1 vCPU |
 | Bandwidth | 100 GB / month |
-| Storage | Ephemeral (uploads deleted after request) |
+| Idle Sleep | After 15 min |
 | Max Upload | 25 MB |
-| Idle Sleep | After 15 min (~30s cold start) |
 
 ---
 
@@ -136,29 +127,12 @@ Client → POST /recognize
           ↓
    ST.js (recognizeSong)
      ├── fetchToken() → Shazam auth
-     ├── processAudio() → FFmpeg → 16kHz mono PCM
+     ├── processAudio() → FFmpeg → 16 kHz mono PCM
      ├── SignatureGenerator → FFT fingerprint
      └── POST amp.shazam.com → match
           ↓
    JSON response ← Client
 ```
-
-The API wrapper is minimal glue — core fingerprinting logic in `ST.js`, `src/algorithm.js`, and `src/signature-format.js` is used untouched.
-
----
-
-## 📦 Dependencies
-
-| Package | Role |
-|---------|------|
-| `express` | HTTP server |
-| `multer` | File upload handling |
-| `cors` | Cross-origin support |
-| `axios` | Shazam API client |
-| `fluent-ffmpeg` | Audio conversion |
-| `@ffmpeg-installer/ffmpeg` | Bundled FFmpeg |
-| `fft.js` | Fast Fourier Transform |
-| `uuid` | Device/session IDs |
 
 ---
 
