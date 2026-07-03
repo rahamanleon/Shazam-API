@@ -15,7 +15,7 @@
     "music-identification",
     "audio-processing"
   ],
-  "author": "Rahaman Leon",
+  "author": "Rahaman Leon (rahamanleon16@gmail.com)",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
