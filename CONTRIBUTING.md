@@ -1,24 +1,20 @@
-# Contributing to Shazam-API
+# Contributing
 
 ## How to Contribute
-1. Fork the repo
-2. Create a feature branch
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/my-feature`
 3. Make your changes
-4. Run tests: `npm test`
-5. Open a Pull Request
+4. Run the tests: `npm test`
+5. Commit with clear messages (conventional commits)
+6. Open a Pull Request
 
-## Setup
-```
+## Development Setup
+```bash
 git clone https://github.com/YOUR_USERNAME/Shazam-API.git
 cd Shazam-API
 npm install
 npm run dev
 ```
 
-## Guidelines
-- Use conventional commits (`feat:`, `fix:`, `docs:`, etc.)
-- Keep functions focused
-- Update docs when changing behavior
-
 ## License
-By contributing you agree to the MIT License.
+By contributing, you agree to the MIT License.
