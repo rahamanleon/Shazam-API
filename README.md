@@ -48,3 +48,14 @@ curl -X POST -F "audio=@song.mp3" http://localhost:3000/recognize
 ## License
 
 MIT &mdash; see [LICENSE](LICENSE).
+
+
+---
+
+## 📬 Contact
+
+- **Author**: [Rahaman Leon](https://github.com/rahamanleon)
+- **Email**: rahamanleon16@gmail.com
+- **Repository**: [https://github.com/rahamanleon/Shazam-API](https://github.com/rahamanleon/Shazam-API)
+- **Issues**: [https://github.com/rahamanleon/Shazam-API/issues](https://github.com/rahamanleon/Shazam-API/issues)
+- **GitHub**: [https://github.com/rahamanleon](https://github.com/rahamanleon)
