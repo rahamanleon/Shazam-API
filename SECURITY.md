@@ -1,3 +1,15 @@
-# Security
+# Security Policy
 
-Report vulnerabilities privately via GitHub Security Advisories. Do NOT file public issues.
+## Supported Versions
+Only the latest major version receives security updates.
+
+## Reporting a Vulnerability
+**Do not report security vulnerabilities through public GitHub issues.**
+
+Report privately via GitHub Security Advisories:
+https://github.com/rahamanleon/Shazam-API/security/advisories
+
+## Response Timeline
+- **48 hours**: Acknowledgment
+- **7 days**: Assessment
+- **30 days**: Patch released
