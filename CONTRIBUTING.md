@@ -10,7 +10,7 @@
 
 ## Development Setup
 ```bash
-git clone https://github.com/YOUR_USERNAME/Shazam-API.git
+git clone https://github.com/rahamanleon/Shazam-API.git
 cd Shazam-API
 npm install
 npm run dev
