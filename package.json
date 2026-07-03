@@ -22,12 +22,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rahamanleon/Shazam-API.git"
+    "url": "git+https://github.com/rahamanleon/Shazam-API.git"
   },
   "bugs": {
     "url": "https://github.com/rahamanleon/Shazam-API/issues"
   },
-  "homepage": "https://github.com/rahamanleon/Shazam-API#readme",
+  "homepage": "https://github.com/rahamanleon/Shazam-API",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "axios": "^1.13.2",
