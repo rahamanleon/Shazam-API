@@ -1,9 +1,3 @@
 ## What does this PR do?
-## Type
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Docs
-- [ ] Refactor
-## Checklist
-- [ ] Tests pass
-- [ ] No secrets committed
+## Type: [bug|feature|docs|refactor]
+## Checklist: tests pass, no secrets, docs updated
