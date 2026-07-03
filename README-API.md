@@ -145,3 +145,11 @@ Client → POST /recognize
 ## 📄 License
 
 MIT — free for personal and commercial use.
+
+
+---
+
+## 📬 Contact
+
+- **Email**: rahamanleon16@gmail.com
+- **GitHub**: [https://github.com/rahamanleon](https://github.com/rahamanleon)
