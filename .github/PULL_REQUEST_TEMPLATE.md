@@ -1,14 +1,5 @@
-## What does this PR do?
-
-## Type of change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Documentation
-- [ ] Refactoring
-
-## How to test
-
+## What
+## Type: bug|feature|docs|refactor
 ## Checklist
 - [ ] Tests pass
-- [ ] Code follows project style
-- [ ] No hardcoded secrets
+- [ ] No secrets
