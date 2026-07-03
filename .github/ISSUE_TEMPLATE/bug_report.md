@@ -1,14 +1,9 @@
 ---
 name: Bug Report
-about: Report a bug to help us improve
+about: Report a bug
 labels: bug
 ---
 **Describe the bug**
-**To Reproduce**
-1.
-2.
+**To Reproduce** (steps)
 **Expected behavior**
-**Environment:**
-- OS:
-- Node version:
-**Additional context**
+**Environment:** OS, Node version
