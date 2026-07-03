@@ -1,8 +1,3 @@
-# Security Policy
+# Security
 
-## Reporting
-
-Please report vulnerabilities privately via GitHub Security Advisories:
-https://github.com/rahamanleon/Shazam-API/security/advisories
-
-Do NOT file public issues for security problems.
+Report vulnerabilities privately via GitHub Security Advisories. Do NOT file public issues.
