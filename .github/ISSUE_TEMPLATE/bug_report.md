@@ -6,4 +6,4 @@ labels: bug
 **Describe the bug**
 **To Reproduce**
 **Expected behavior**
-**Environment:** OS, Node version
+**Environment:**
