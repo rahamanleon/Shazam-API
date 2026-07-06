@@ -54,7 +54,7 @@ MIT &mdash; see [LICENSE](LICENSE).
 
 ## 📬 Contact
 
-- **Author**: [Rahaman Leon](https://github.com/rahamanleon)
+- **Modified By**: [Rahaman Leon](https://github.com/rahamanleon)
 - **Email**: rahamanleon16@gmail.com
 - **Repository**: [https://github.com/rahamanleon/Shazam-API](https://github.com/rahamanleon/Shazam-API)
 - **Issues**: [https://github.com/rahamanleon/Shazam-API/issues](https://github.com/rahamanleon/Shazam-API/issues)
